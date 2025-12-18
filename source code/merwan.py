@@ -1,6 +1,9 @@
 def menu():
-    print("Lancer la partie")
-    print("Changer le thème")
-    print("Tableau des scores")
-    print("Crédits")
-    int(input("Faites votre choix"))
+    print("1 : Lancer la partie")
+    print("2 : Changer le thème")
+    print("3 : ableau des scores")
+    print("4 : Crédits")
+    a=int(input("Faites votre choix entre 1 et 4 : "))
+    print("Milo le goat",a)
+
+menu()

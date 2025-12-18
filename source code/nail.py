@@ -5,4 +5,4 @@ def fleche_gauche():
         nvl_ligne = []
         for x in ligne:
             if x != 0:
-                nvl_ligne.append(List[x
+                nvl_ligne.append(x)

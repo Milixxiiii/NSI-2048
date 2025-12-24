@@ -29,3 +29,6 @@ def __init__(grille):
 
 __init__(grille_jeu)
 afficheGrille(grille_jeu)
+
+def haut(grille):
+    

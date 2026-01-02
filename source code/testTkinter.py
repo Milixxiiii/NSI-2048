@@ -1,17 +1,13 @@
 from tkinter import *
+from pathlib import Path
 
-def fonctionA(event):
-    print("a")
-def fonctionB(event):
-    print("b")
+icon_path = Path(__file__).parent.parent / "ressources" / "icone.ico"
 
 root = Tk()
 
-root.bind("<Up>", fonctionA)
-root.bind("<Down>", fonctionB)
+root.title("2048")
+root.iconbitmap(icon_path)
 
-bouton=Button(root, text="Fermer", command=root.quit)
-bouton.pack()
 
 root.mainloop()
 

@@ -71,14 +71,50 @@ def initialisation(grille):
         remplacement = choice(vide)
         grille[remplacement[0]][remplacement[1]] = choice(proba)
 
+def gauche(grille):
+    
+    nbModif = 0
+    for line in grille:
+        nvl_ligne = []
+        for x in line:
+            if x != 0:
+                nvl_ligne.append(x)
+        for x in range(len(line)-len(nvl_ligne)):
+            nvl_ligne.insert(0, 0)
+        grille[grille.index(line)] = nvl_ligne
+
+    
+    if nbModif != 0:
+        apparition(grille)
+
+
+
+def droite(grille):
+    
+    nbModif = 0
+    for line in grille:
+        nvl_ligne = []
+        for x in line:
+            if x != 0:
+                nvl_ligne.insert(0, x)
+        for x in range(len(line)-len(nvl_ligne)):
+            nvl_ligne.append(0)
+        grille[grille.index(line)] = nvl_ligne
+
+    
+    if nbModif != 0:
+        apparition(grille)
+
+
 initialisation(grille_jeu)
 afficheGrille(grille_jeu)
 sleep(2)
-apparition(grille_jeu)
+gauche(grille_jeu)
 afficheGrille(grille_jeu)
 sleep(2)
-apparition(grille_jeu)
+droite(grille_jeu)
 afficheGrille(grille_jeu)
+
 
 
 

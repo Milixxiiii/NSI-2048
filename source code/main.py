@@ -2,14 +2,14 @@
 
 from tkinter import *
 from random import choice, randint
-from time import sleep
+from copy import deepcopy
+import time
 import os
 
 #on définit des varibles de base
 
-taille = 4
+taille_grille = 4
 proba = [2 for i in range(9)] + [4 for i in range(1)]
-grille_jeu = [[0 for y in range(taille)] for x in range(taille)]
 
 
 #fonction affichage de la grille dans la console
@@ -43,78 +43,138 @@ def select_zero(liste):
 
 
 def apparition(grille):
-    """simple fonction permettant de faire apparaitre un chiffre à un endroit aléatoire de la grille
+    """procédure qui fait apparaitre un chiffre à un endroit aléatoire de la grille
     
     args:
         grille: grille actuelle du jeu
-    returns:
-        retourne la même grille mais avec l'apparition d'un nouveau bloc
     """
+
+    #creation de la nouvelle grille:
+
+    #on choisit une case vide au hasard:
     vide = select_zero(grille)
     nouvelle_case = choice(vide)
+
+    #on fait apparaitre un nouveau chiffre sur cette case et on retourn la nouvelle grille :
     grille[nouvelle_case[0]][nouvelle_case[1]] = choice(proba)
+
+
+
+def initialisation(taille):
+
+    """fonction permettant la préparation du jeu 2048
+    
+    args:
+        taille: taille de la grille avec laquelle on veut jouer
+    
+    returns:
+        grille_jeu: nouvelle grille de jeu généré
+    
+    """
+    #on crée la grille de jeu
+    grille_jeu = [[0 for y in range(taille)] for x in range(taille)]
+
+    #on execute la boucle 2 fois pour que les 2 cubes de base apparaissent :
+    for i in range(2):
+
+        #on sélectionne une case vide au hasard
+        vide = select_zero(grille_jeu)
+        remplacement = choice(vide)
+
+        #on remplace la case choisi par un bloc aléatoire
+        grille_jeu[remplacement[0]][remplacement[1]] = choice(proba)
+    
+    #on renvoie la grille de jeu généré
+    return grille_jeu
+
+def mouvement_ligne(ligne):
+
+    ligne_temp = [x for x in ligne if x != 0]
+    nvl_ligne = []
+
+    i = 0    
+    while i < len(ligne_temp):
+        valeur = ligne_temp[i]
+        if i == len(ligne_temp)-1:
+            nvl_ligne.append(ligne_temp[i])
+            i += 1
+        elif valeur == ligne_temp[i+1]:
+            nvl_ligne.append(valeur*2)
+            i += 2
+        else:
+            nvl_ligne.append(valeur)
+            i += 1
+    
+     
+    while len(nvl_ligne) < len(ligne):
+        nvl_ligne.append(0)
+
+    return nvl_ligne
+
+def inverse_ligne(ligne):
+    return ligne[::-1]
+
+def inverse_grille(grille):
+    new_grille = [[0 for x in grille]for x in grille[0]]
+    for x in range(len(grille)):
+        for i in range(len(grille[0])):
+            new_grille[i][x] = grille[x][i]
+    
+    return new_grille
+
+def mouvement_grille(grille, direction):
+        
+    anc_grille = deepcopy(grille)
+
+    match direction.lower().strip():
+
+        case "gauche":
+            i = 0
+            for ligne in grille:
+                grille[i] = mouvement_ligne(ligne)
+                i += 1
+        
+        case "droite":
+            i = 0
+            for ligne in grille:
+                ligne = inverse_ligne(ligne)
+                ligne = mouvement_ligne(ligne)
+                grille[i] = inverse_ligne(ligne)
+                i += 1
+        
+        case "bas":
+            grille[:] = inverse_grille(grille)
+            i = 0
+            for ligne in grille:
+                ligne = inverse_ligne(ligne)
+                ligne = mouvement_ligne(ligne)
+                grille[i] = inverse_ligne(ligne)
+                i += 1
+            grille[:] = inverse_grille(grille)
+        
+        case "haut":
+            grille[:] = inverse_grille(grille)
+            i = 0
+            for ligne in grille:
+                grille[i] = mouvement_ligne(ligne)
+                i += 1
+            grille[:] = inverse_grille(grille)
+        
+        case _:
+            return 'erreur : direction incorrecte'
+            
+
+    if anc_grille != grille:
+        apparition(grille)
+    
     return grille
 
 
-
-def initialisation(grille):
-
-    """procédure permettant la préparation du jeu 2048
-    
-    args:
-        grille: grille avec laquelle on veut jouer
-    
-    """
-
-    for loop in range(2):
-        vide = select_zero(grille)
-        remplacement = choice(vide)
-        grille[remplacement[0]][remplacement[1]] = choice(proba)
-
-def gauche(grille):
-    
-    nbModif = 0
-    for line in grille:
-        nvl_ligne = []
-        for x in line:
-            if x != 0:
-                nvl_ligne.append(x)
-        for x in range(len(line)-len(nvl_ligne)):
-            nvl_ligne.insert(0, 0)
-        grille[grille.index(line)] = nvl_ligne
-
-    
-    if nbModif != 0:
-        apparition(grille)
-
-
-
-def droite(grille):
-    
-    nbModif = 0
-    for line in grille:
-        nvl_ligne = []
-        for x in line:
-            if x != 0:
-                nvl_ligne.insert(0, x)
-        for x in range(len(line)-len(nvl_ligne)):
-            nvl_ligne.append(0)
-        grille[grille.index(line)] = nvl_ligne
-
-    
-    if nbModif != 0:
-        apparition(grille)
-
-
-initialisation(grille_jeu)
+grille_jeu = initialisation(taille_grille)
 afficheGrille(grille_jeu)
-sleep(2)
-gauche(grille_jeu)
+time.sleep(2)
+mouvement_grille(grille_jeu, "haut")
 afficheGrille(grille_jeu)
-sleep(2)
-droite(grille_jeu)
-afficheGrille(grille_jeu)
-
 
 
 

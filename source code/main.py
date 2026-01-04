@@ -10,6 +10,7 @@ import tkinter as tk
 #on définit des varibles de base
 
 taille_grille = 4
+bg = "#DBA2D9"
 default_proba = "90% - 10%"
 default_touches = "zqsd"
 proba = [2 for i in range(int(default_proba[0]))] + [4 for i in range(int(default_proba[-3]))]
@@ -208,7 +209,7 @@ def lancer_fenetre(window):
     window.iconbitmap(icon_path)
     window.geometry("720x480")
     window.minsize(360, 240)
-    window.config(bg="#DBA2D9")
+    window.config(bg=bg)
 
 
 def titre(texte, lieu, bg_color):
@@ -291,7 +292,7 @@ def parametres(window):
     bg_frames = "#DCE09B"
     #on definit les frames:
     frame1 = tk.Frame(window, bg=bg_frames)
-    frame2 = tk.Frame(window, bg=bg_frames)
+    frame2 = tk.Frame(window, bg=bg)
 
 
     #textes:
@@ -325,8 +326,8 @@ def parametres(window):
     #on cree les menus
     #le "*" sert à séparer les liste en option disintinces : 
     # [1, 2, 3] -> "1" "2" "3"
-    menu_probas = tk.OptionMenu(window, valeur_probas, *probas_options)
-    menu_touches = tk.OptionMenu(window, valeur_touches, *touches_options)
+    menu_probas = tk.OptionMenu(frame1, valeur_probas, *probas_options)
+    menu_touches = tk.OptionMenu(frame1, valeur_touches, *touches_options)
 
 
     #on cree les boutons
@@ -350,15 +351,15 @@ def parametres(window):
 
     enregistrer_bouton = tk.Button(
         frame2,
-        text="Lancer",
+        text="Enregistrer",
         bg="pink",
         fg='black',
         font=("Arial", 25),
         command= None
     )
     #on place les éléments avec grid:
-    title1.pack
-    title2.pack()
+    title1.grid(row = 0, column=0)
+    title2.grid(row=0, column=0)
     subtitle1.grid(row = 1, column = 0)
     subtitle2.grid(row = 2, column= 0)
     subtitle3.grid(row= 3, column= 0)
@@ -367,6 +368,10 @@ def parametres(window):
     menu_probas.grid(row = 2, column=1)
     menu_touches.grid(row = 3, column=1)
     pseudo.grid(row = 4, column=1)
+
+    enregistrer_bouton.grid(row=0, column=1, padx=20)
+    accueil_bouton.grid(row=0, column=0, padx=20)
+    lancer_bouton.grid(row=0, column = 2, padx=20,)
 
     #on pack les grilles
     frame1.pack(expand=tk.YES)

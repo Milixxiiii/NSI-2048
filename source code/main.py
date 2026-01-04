@@ -240,7 +240,7 @@ def ecran_accueil(window):
     bg_frame2 = "#DBA2D9"
 
     frame1 = tk.Frame(window, bg=bg_frame1)
-    frame2 = tk.Frame(window, bg=bg_frame2)
+    frame2 = tk.Frame(window, bg=bg)
 
     label_title = titre("Un Jeu de 2048 en PYTHON \n - \n Cours de NSI", frame1, bg_frame1)
     label_title.pack()
@@ -358,8 +358,8 @@ def parametres(window):
         command= None
     )
     #on place les éléments avec grid:
-    title1.pack()
-    title2.pack()
+    frame1.grid(row=0, column=0, sticky="nsew")
+    frame2.grid(row=1, column=0, sticky="nsew")
     subtitle1.grid(row = 1, column = 0)
     subtitle2.grid(row = 2, column= 0)
     subtitle3.grid(row= 3, column= 0)

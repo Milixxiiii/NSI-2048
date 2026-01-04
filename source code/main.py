@@ -10,7 +10,9 @@ import tkinter as tk
 #on définit des varibles de base
 
 taille_grille = 4
-proba = [2 for i in range(9)] + [4 for i in range(1)]
+default_proba = "90% - 10%"
+default_touches = "zqsd"
+proba = [2 for i in range(int(default_proba[0]))] + [4 for i in range(int(default_proba[-3]))]
 icon_path = Path(__file__).parent.parent / "ressources" / "icone.ico"
 
 
@@ -208,30 +210,35 @@ def lancer_fenetre(window):
     window.minsize(360, 240)
     window.config(bg="#DBA2D9")
 
+
+def titre(texte, lieu, bg_color):
+    objet = tk.Label(
+        lieu,
+        text=texte,
+        bg=bg_color,
+        fg="black",
+        font=("courrier", 40)
+    )
+    return objet
+
+def sous_titre(texte, lieu, bg_color):
+
+
 def ecran_accueil(window):
 
     for widget in window.winfo_children():
         widget.destroy()
+    
+    bg_frame1 = "#ECF5B3"
+    bg_frame2 = "#DBA2D9"
 
-    frame1 = tk.Frame(window, bg="#ECF5B3")
-    frame2 = tk.Frame(window, bg="#DBA2D9")
+    frame1 = tk.Frame(window, bg=bg_frame1)
+    frame2 = tk.Frame(window, bg=bg_frame2)
 
-    label_title = tk.Label(
-        frame1,
-        text="Un Jeu de 2048 en PYTHON \n - \n Cours de NSI",
-        bg="#ECF5B3",
-        fg="black",
-        font=("courrier", 40)
-    )
+    label_title = titre("Un Jeu de 2048 en PYTHON \n - \n Cours de NSI", frame1, bg_frame1)
     label_title.pack()
 
-    label_credits = tk.Label(
-        frame1,
-        text="\nPar Nail, Merwan et Milo",
-        font=("Helvetica", 18),
-        bg="#ECF5B3",
-        fg='black'
-    )
+    label_credits = sous_titre("\nPar Nail, Merwan et Milo", frame1, bg_frame1)
     label_credits.pack()
 
     lancer_bouton = tk.Button(
@@ -252,19 +259,129 @@ def ecran_accueil(window):
         command=lambda: parametres(window)
     )
 
-    lancer_bouton.grid(row=0, column=0, padx=20)
-    param_bouton.grid(row=0, column=1, padx=20)
+    bestScore_bouton = tk.Button(
+        frame2,
+        text= "Meilleurs Scores",
+        bg= "light yellow",
+        font=("Arial", 25),
+        command= lambda: best_score(window)
+    )
+
+    lancer_bouton.grid(row=0, column=1, padx=20)
+    param_bouton.grid(row=0, column=0, padx=20)
+    bestScore_bouton.grid(row=0, column = 2, padx=20,)
 
     frame1.pack(expand=True)
     frame2.pack(expand=True)
 
 def parametres(window):
+
+    #nettoyage de l'ancienne fenetre:
     for element in window.winfo_children():
         element.destroy()
+    #on change le titre de la fenetre:
+    window.title("2048 - Paramètres")
+
+    #on definit les frames:
+    frame1 = tk.Frame(window, bg="#DCE09B")
+    frame2 = tk.Frame(window, bg="#DCE09B")
+
+
+    #textes:
+    title1 = titre("Personnalisation", frame1)
+
+    title2 = titre("Actions", frame2)
+
+    subtitle1 = tk.Label(
+        frame1,
+        text = "Taille : ",
+        bg = "#DCE09B",
+        fg = "grey",
+        font=("Arial", 15)
+    )
+
+    subtitle2 = tk.Label(
+        frame1,
+        text = "Probabilités 2 - 4 :",
+        bg = "#DCE09B",
+        fg = "grey",
+        font=("Arial", 15)
+    )
+
+    subtitle3 = tk.Label(
+        frame1,
+        text = "touches : ",
+        bg = "#DCE09B",
+        fg = "grey",
+        font=("Arial", 15)
+    )
+
+    subtitle4 = tk.Label(
+        frame1,
+        text = "pseudo :",
+        bg = "#DCE09B",
+        fg = "grey",
+        font=("Arial", 15)
+    )
+
+    #champs de saisies
+    tailleJeu = tk.Entry(frame1)
+    pseudo = tk.Entry(frame1)
+
+    #varibles pour les choix de probas et touches:
+    touches_options = ["ZQSD", "Fleches", "WASD"]
+    probas_options = ["10% - 90%", "20% - 80%", "30% - 70%", "40% - 60%", "50% - 50%"]
+
+    valeur_probas = tk.StringVar(window)
+    valeur_touches = tk.StringVar(window)
+
+    #on définit les valeurs par défaut des menus
+    valeur_probas.set(default_proba)
+    valeur_touches.set(default_touches)
+
+    #on cree les menus
+    #le "*" sert à séparer les liste en option disintinces : 
+    # [1, 2, 3] -> "1" "2" "3"
+    menu_probas = tk.OptionMenu(window, valeur_probas, *probas_options)
+    menu_touches = tk.OptionMenu(window, valeur_touches, *touches_options)
+
+
+    #on cree les boutons
+
+    accueil_bouton = tk.Button(
+        frame2,
+        text="Retour Au Menu",
+        bg="pink",
+        fg='black',
+        font=("Arial", 25),
+        command=lambda: ecran_accueil(window)
+    )
+    lancer_bouton = tk.Button(
+        frame2,
+        text="Lancer",
+        bg="pink",
+        fg='black',
+        font=("Arial", 25),
+        command=lambda: lancer_jeu(window)
+    )
+
+    frame1.pack(expand=tk.YES)
+    frame2.pack(expand=tk.YES)
     print("Ouverture des paramètres")
 
+
 def lancer_jeu(window):
+    for element in window.winfo_children():
+        element.destroy()
     print("lancement du 2048")
+
+def fin_de_jeu(window):
+    for element in window.winfo_children():
+        element.destroy()
+
+def best_score(windows):
+    print("les meilleurs scores")
+    
 
 
 root = tk.Tk()

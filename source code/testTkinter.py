@@ -19,7 +19,17 @@ frame = Frame(root)
 
 #creation du texte 1
 
+entry = Entry(frame)
 
+def text(event):
+    print("vous avez tapé : ", entry.get())
+
+
+entry.pack()
+frame.pack()
+print("10% - 90%")
+
+entry.bind("<Return>", text)
 
 root.mainloop()
 

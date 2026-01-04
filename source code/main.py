@@ -358,8 +358,8 @@ def parametres(window):
         command= None
     )
     #on place les éléments avec grid:
-    title1.grid(row = 0, column=0)
-    title2.grid(row=0, column=0)
+    title1.pack()
+    title2.pack()
     subtitle1.grid(row = 1, column = 0)
     subtitle2.grid(row = 2, column= 0)
     subtitle3.grid(row= 3, column= 0)

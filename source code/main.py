@@ -11,10 +11,11 @@ import tkinter as tk
 
 taille_grille = 4
 bg = "#DBA2D9"
-default_proba = "90% - 10%"
+default_probas = "90% - 10%"
 default_touches = "zqsd"
-proba = [2 for i in range(int(default_proba[0]))] + [4 for i in range(int(default_proba[-3]))]
+proba = []
 icon_path = Path(__file__).parent.parent / "ressources" / "icone.ico"
+nom = "player"
 
 
 #fonction affichage de la grille dans la console
@@ -54,8 +55,17 @@ def initialisation(taille):
 
     
     """
+    global proba
+
+    p2, p4 = proba.replace("%", "").split(" - ")
+
     #on crée la grille de jeu
     grille_jeu = [[0 for y in range(taille)] for x in range(taille)]
+
+
+    #on genere les probas
+    proba = [2]*p2 + [4]*p4
+
 
     #on execute la boucle 2 fois pour que les 2 cubes de base apparaissent :
     for i in range(2):
@@ -207,8 +217,8 @@ def mouvement_grille(grille, direction):
 def lancer_fenetre(window):
     window.title("2048 - Python")
     window.iconbitmap(icon_path)
-    window.geometry("720x480")
-    window.minsize(360, 240)
+    window.geometry("1920x1080")
+    window.minsize(960, 600)
     window.config(bg=bg)
 
 
@@ -218,7 +228,7 @@ def titre(texte, lieu, bg_color):
         text=texte,
         bg=bg_color,
         fg="black",
-        font=("courrier", 40)
+        font=("courrier", 70)
     )
 
 def sous_titre(texte, lieu, bg_color):
@@ -227,9 +237,20 @@ def sous_titre(texte, lieu, bg_color):
         text = texte,
         bg = bg_color,
         fg = "grey",
-        font=("Arial", 15)
+        font=("Arial", 25)
     )
 
+def maj_param(pseudo, taille, touches, probas):
+    global nom, taille_grille, default_probas, default_touches
+
+    nom = pseudo.get()
+    taille_grille = taille.get()
+    default_touches = touches.get()
+    default_probas = probas.get()
+
+    print(taille_grille)
+    
+    
 
 def ecran_accueil(window):
 
@@ -237,7 +258,6 @@ def ecran_accueil(window):
         widget.destroy()
     
     bg_frame1 = "#ECF5B3"
-    bg_frame2 = "#DBA2D9"
 
     frame1 = tk.Frame(window, bg=bg_frame1)
     frame2 = tk.Frame(window, bg=bg)
@@ -298,8 +318,6 @@ def parametres(window):
     #textes:
     title1 = titre("Personnalisation", frame1, bg_frames)
 
-    title2 = titre("Actions", frame2, bg_frames)
-
     subtitle1 = sous_titre("Taille : ", frame1, bg_frames)
 
     subtitle2 = sous_titre("Probablités 2 - 4 :", frame1, bg_frames)
@@ -312,6 +330,11 @@ def parametres(window):
     tailleJeu = tk.Entry(frame1)
     pseudo = tk.Entry(frame1)
 
+    #on remplit les champs de saisies avec les valeurs actuelles:
+
+    tailleJeu.insert(0, str(taille_grille))
+    pseudo.insert(0, nom)
+
     #varibles pour les choix de probas et touches:
     touches_options = ["ZQSD", "Fleches", "WASD"]
     probas_options = ["10% - 90%", "20% - 80%", "30% - 70%", "40% - 60%", "50% - 50%"]
@@ -320,7 +343,7 @@ def parametres(window):
     valeur_touches = tk.StringVar(window)
 
     #on définit les valeurs par défaut des menus
-    valeur_probas.set(default_proba)
+    valeur_probas.set(default_probas)
     valeur_touches.set(default_touches)
 
     #on cree les menus
@@ -355,11 +378,10 @@ def parametres(window):
         bg="pink",
         fg='black',
         font=("Arial", 25),
-        command= None
+        command= lambda: maj_param(pseudo, tailleJeu, valeur_touches, valeur_probas)
     )
     #on place les éléments avec grid:
     title1.grid(row=0, column=0)
-    title2.grid(row=0, column=0)
     subtitle1.grid(row = 1, column = 0)
     subtitle2.grid(row = 2, column= 0)
     subtitle3.grid(row= 3, column= 0)
@@ -369,9 +391,9 @@ def parametres(window):
     menu_touches.grid(row = 3, column=1)
     pseudo.grid(row = 4, column=1)
 
-    enregistrer_bouton.grid(row=0, column=1, padx=20)
-    accueil_bouton.grid(row=0, column=0, padx=20)
-    lancer_bouton.grid(row=0, column = 2, padx=20,)
+    enregistrer_bouton.grid(row=1, column=1, padx=20, pady=40)
+    accueil_bouton.grid(row=1, column=0, padx=20, pady=40)
+    lancer_bouton.grid(row=1, column = 2, padx=20, pady=40)
 
     #on pack les grilles
     frame1.pack(expand=tk.YES)
@@ -381,13 +403,41 @@ def parametres(window):
 def lancer_jeu(window):
     for element in window.winfo_children():
         element.destroy()
-    print("lancement du 2048")
+
+    #on isole les touches:
+    if default_touches == "Fleches":
+        haut = "Up"
+        gauche = "Left"
+        droite = "Right"
+        bas = "Down"
+    else:
+        haut = default_touches[0]
+        gauche = default_touches[1]
+        droite = default_touches[2]
+        bas = default_touches[3]
+    
+    #on crée le canvas(zone de jeu)
+    zone_jeu = tk.Canvas(window, width = 800, height = 800, bg="ivory")
+    zone_jeu.grid(row = 0, column= 0)
+
+    #on crée la frame de l'UI:
+    frameUI = tk.Frame(window, bg=bg)
+
+    #on crée les textes:
+
+    label_joueur = titre(nom, frameUI, bg)
+    label_score = sous_titre("\nScore :", frameUI, bg)
+    score = sous_titre("......", frameUI, bg)
+    label_joueur.pack(expand=tk.YES)
+    label_score.pack(expand=tk.YES)
+    score.pack(expand=tk.YES)
+    frameUI.grid(row=0, column=1)
 
 def fin_de_jeu(window):
     for element in window.winfo_children():
         element.destroy()
 
-def best_score(windows):
+def best_score(window):
     print("les meilleurs scores")
     
 

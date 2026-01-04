@@ -212,16 +212,22 @@ def lancer_fenetre(window):
 
 
 def titre(texte, lieu, bg_color):
-    objet = tk.Label(
+    return tk.Label(
         lieu,
         text=texte,
         bg=bg_color,
         fg="black",
         font=("courrier", 40)
     )
-    return objet
 
 def sous_titre(texte, lieu, bg_color):
+    return tk.Label(
+        lieu,
+        text = texte,
+        bg = bg_color,
+        fg = "grey",
+        font=("Arial", 15)
+    )
 
 
 def ecran_accueil(window):
@@ -282,47 +288,24 @@ def parametres(window):
     #on change le titre de la fenetre:
     window.title("2048 - Paramètres")
 
+    bg_frames = "#DCE09B"
     #on definit les frames:
-    frame1 = tk.Frame(window, bg="#DCE09B")
-    frame2 = tk.Frame(window, bg="#DCE09B")
+    frame1 = tk.Frame(window, bg=bg_frames)
+    frame2 = tk.Frame(window, bg=bg_frames)
 
 
     #textes:
-    title1 = titre("Personnalisation", frame1)
+    title1 = titre("Personnalisation", frame1, bg_frames)
 
-    title2 = titre("Actions", frame2)
+    title2 = titre("Actions", frame2, bg_frames)
 
-    subtitle1 = tk.Label(
-        frame1,
-        text = "Taille : ",
-        bg = "#DCE09B",
-        fg = "grey",
-        font=("Arial", 15)
-    )
+    subtitle1 = sous_titre("Taille : ", frame1, bg_frames)
 
-    subtitle2 = tk.Label(
-        frame1,
-        text = "Probabilités 2 - 4 :",
-        bg = "#DCE09B",
-        fg = "grey",
-        font=("Arial", 15)
-    )
+    subtitle2 = sous_titre("Probablités 2 - 4 :", frame1, bg_frames)
 
-    subtitle3 = tk.Label(
-        frame1,
-        text = "touches : ",
-        bg = "#DCE09B",
-        fg = "grey",
-        font=("Arial", 15)
-    )
+    subtitle3 = sous_titre("Touches :", frame1, bg_frames)
 
-    subtitle4 = tk.Label(
-        frame1,
-        text = "pseudo :",
-        bg = "#DCE09B",
-        fg = "grey",
-        font=("Arial", 15)
-    )
+    subtitle4 = sous_titre("Pseudo", frame1, bg_frames)
 
     #champs de saisies
     tailleJeu = tk.Entry(frame1)
@@ -365,9 +348,29 @@ def parametres(window):
         command=lambda: lancer_jeu(window)
     )
 
+    enregistrer_bouton = tk.Button(
+        frame2,
+        text="Lancer",
+        bg="pink",
+        fg='black',
+        font=("Arial", 25),
+        command= None
+    )
+    #on place les éléments avec grid:
+    title1.pack
+    title2.pack()
+    subtitle1.grid(row = 1, column = 0)
+    subtitle2.grid(row = 2, column= 0)
+    subtitle3.grid(row= 3, column= 0)
+    subtitle4.grid(row= 4, column= 0)
+    tailleJeu.grid(row = 1, column= 1)
+    menu_probas.grid(row = 2, column=1)
+    menu_touches.grid(row = 3, column=1)
+    pseudo.grid(row = 4, column=1)
+
+    #on pack les grilles
     frame1.pack(expand=tk.YES)
     frame2.pack(expand=tk.YES)
-    print("Ouverture des paramètres")
 
 
 def lancer_jeu(window):

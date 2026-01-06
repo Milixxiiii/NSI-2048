@@ -16,6 +16,7 @@ default_touches = "zqsd"
 proba = []
 icon_path = Path(__file__).parent.parent / "ressources" / "icone.ico"
 nom = "player"
+score = 0
 
 
 #fonction affichage de la grille dans la console
@@ -150,6 +151,7 @@ def inverse_grille(grille):
             new_grille[i][x] = grille[x][i]                 #on inverse la coordonnés x et y
     
     return new_grille
+
 
 
 #fonctions qui gère tout les mouvements
@@ -336,7 +338,7 @@ def parametres(window):
     pseudo.insert(0, nom)
 
     #varibles pour les choix de probas et touches:
-    touches_options = ["ZQSD", "Fleches", "WASD"]
+    touches_options = ["zqsd", "Fleches", "wasd"]
     probas_options = ["10% - 90%", "20% - 80%", "30% - 70%", "40% - 60%", "50% - 50%"]
 
     valeur_probas = tk.StringVar(window)
@@ -406,32 +408,57 @@ def lancer_jeu(window):
 
     #on isole les touches:
     if default_touches == "Fleches":
-        haut = "Up"
-        gauche = "Left"
-        droite = "Right"
-        bas = "Down"
+        haut = "<Up>"
+        gauche = "<Left>" 
+        droite = "<Right>"
+        bas = "<Down>"
     else:
-        haut = default_touches[0]
-        gauche = default_touches[1]
-        droite = default_touches[2]
-        bas = default_touches[3]
+        haut = "<" + default_touches[0] + ">"
+        gauche = "<" + default_touches[1] + ">"
+        droite = "<" + default_touches[2] + ">"
+        bas = "<" + default_touches[3] + ">"
     
     #on crée le canvas(zone de jeu)
     zone_jeu = tk.Canvas(window, width = 800, height = 800, bg="ivory")
-    zone_jeu.grid(row = 0, column= 0)
+    zone_jeu.grid(row = 0, column= 0, pady= 40, padx=50)
 
     #on crée la frame de l'UI:
     frameUI = tk.Frame(window, bg=bg)
 
+    #on crée les boutons :
+    bouton_stop = tk.Button(
+        frameUI,
+        text="Fin Du Jeu",
+        bg="pink",
+        fg='black',
+        font=("Arial", 25),
+        command= lambda: fin_de_jeu(window)
+    )
+
     #on crée les textes:
 
-    label_joueur = titre(nom, frameUI, bg)
+    label_joueur = sous_titre("Joueur : " + nom, frameUI, bg)
     label_score = sous_titre("\nScore :", frameUI, bg)
     score = sous_titre("......", frameUI, bg)
-    label_joueur.pack(expand=tk.YES)
-    label_score.pack(expand=tk.YES)
-    score.pack(expand=tk.YES)
+
+    #on récupère la taille rélle de la grille dans la fenetre
+    haut = zone_jeu.winfo_width()
+    largeur = 
+
+
+    label_joueur.grid(row= 0, column=0)
+    label_score.grid(row = 1, column = 0)
+    score.grid(row= 1, column= 1)
+    bouton_stop.grid(row = 2, column = 0, pady=40)
     frameUI.grid(row=0, column=1)
+
+    window.bind(gauche, fonction gauche)
+    window.bind(droite, fonction droite)
+    window.bind(haut, fonction haut)
+    window.bind(bas, fonction bas)
+
+
+
 
 def fin_de_jeu(window):
     for element in window.winfo_children():

@@ -7,7 +7,7 @@ import time
 import os
 import tkinter as tk
 
-#on définit des varibles de base
+#on définit des varibles globales
 
 taille_grille = 4
 bg = "#DBA2D9"
@@ -18,6 +18,21 @@ icon_path = Path(__file__).parent.parent / "ressources" / "icone.ico"
 nom = "player"
 score = 0
 
+#dictionnaire des couleurs
+color = {
+    0 : "#CDC1B4",
+    2: "#EEE4DA",
+    4: "#EDE0C8",
+    8: "#F2B179",
+    16: "#F59563",
+    32: "#F67C5F",
+    64: "#F65E3B",
+    128: "#EDCF72",
+    256: "#EDCC61",
+    512: "#EDC850",
+    1024: "#EDC53F",
+    2048: "#EDC22E"
+}
 
 #fonction affichage de la grille dans la console
 def afficheGrille(grille):
@@ -58,14 +73,14 @@ def initialisation(taille):
     """
     global proba
 
-    p2, p4 = proba.replace("%", "").split(" - ")
+    p2, p4 = default_probas.replace("%", "").split(" - ")
 
     #on crée la grille de jeu
     grille_jeu = [[0 for y in range(taille)] for x in range(taille)]
 
 
     #on genere les probas
-    proba = [2]*p2 + [4]*p4
+    proba = [2]*int(p2) + [4]*int(p4)
 
 
     #on execute la boucle 2 fois pour que les 2 cubes de base apparaissent :
@@ -246,7 +261,7 @@ def maj_param(pseudo, taille, touches, probas):
     global nom, taille_grille, default_probas, default_touches
 
     nom = pseudo.get()
-    taille_grille = taille.get()
+    taille_grille = int(taille.get())
     default_touches = touches.get()
     default_probas = probas.get()
 
@@ -276,7 +291,7 @@ def ecran_accueil(window):
         bg="pink",
         fg='black',
         font=("Arial", 25),
-        command=lambda: lancer_jeu(window)
+        command=lambda: initialisation_interface(window)
     )
 
     param_bouton = tk.Button(
@@ -371,7 +386,7 @@ def parametres(window):
         bg="pink",
         fg='black',
         font=("Arial", 25),
-        command=lambda: lancer_jeu(window)
+        command=lambda: initialisation_interface(window)
     )
 
     enregistrer_bouton = tk.Button(
@@ -401,25 +416,35 @@ def parametres(window):
     frame1.pack(expand=tk.YES)
     frame2.pack(expand=tk.YES)
 
+def maj_grille(canva, grille, taille_case):
+    for x in range(taille_grille):
+        for i in range(taille_grille):
+            case = grille[x][i]
+            x1 = i*taille_case
+            y1 = x*taille_case
+            x2 = i*taille_case + taille_case
+            y2 = x*taille_case + taille_case
+            canva.create_rectangle(
+                x1, y1, x2, y2,
+                fill = color[case]
+            )
+            if case > 0:
+                canva.create_text(
+                    x1 + taille_case/2, y1 + taille_case/2,
+                    text= str(case),
+                    fill= "black",
+                    font=("Arial", 30)
+                )
 
-def lancer_jeu(window):
+
+
+def initialisation_interface(window):
     for element in window.winfo_children():
         element.destroy()
 
-    #on isole les touches:
-    if default_touches == "Fleches":
-        haut = "<Up>"
-        gauche = "<Left>" 
-        droite = "<Right>"
-        bas = "<Down>"
-    else:
-        haut = "<" + default_touches[0] + ">"
-        gauche = "<" + default_touches[1] + ">"
-        droite = "<" + default_touches[2] + ">"
-        bas = "<" + default_touches[3] + ">"
     
     #on crée le canvas(zone de jeu)
-    zone_jeu = tk.Canvas(window, width = 800, height = 800, bg="ivory")
+    zone_jeu = tk.Canvas(window, width = 800, height = 800, bg="ivory", highlightthickness = 0, borderwidth=0)
     zone_jeu.grid(row = 0, column= 0, pady= 40, padx=50)
 
     #on crée la frame de l'UI:
@@ -435,28 +460,63 @@ def lancer_jeu(window):
         command= lambda: fin_de_jeu(window)
     )
 
+    bouton_commencer = tk.Button(
+        frameUI,
+        text="Commencer",
+        bg="pink",
+        fg='black',
+        font=("Arial", 25),
+        command= lambda: jeu(window, zone_jeu)
+    )
+
     #on crée les textes:
 
     label_joueur = sous_titre("Joueur : " + nom, frameUI, bg)
     label_score = sous_titre("\nScore :", frameUI, bg)
     score = sous_titre("......", frameUI, bg)
 
-    #on récupère la taille rélle de la grille dans la fenetre
-    haut = zone_jeu.winfo_width()
-    largeur = 
+    #calcul de la largeur d'une case    
+    #contour
+    zone_jeu.create_rectangle(
+        0, 0, 800, 800,
+        outline="black",
+        width=5
+    )
+
 
 
     label_joueur.grid(row= 0, column=0)
     label_score.grid(row = 1, column = 0)
     score.grid(row= 1, column= 1)
-    bouton_stop.grid(row = 2, column = 0, pady=40)
+    bouton_commencer.grid(row=2, column = 0, pady = 100)
+    bouton_stop.grid(row = 3, column = 0, pady=40)
     frameUI.grid(row=0, column=1)
 
-    window.bind(gauche, fonction gauche)
-    window.bind(droite, fonction droite)
-    window.bind(haut, fonction haut)
-    window.bind(bas, fonction bas)
 
+
+
+
+
+def jeu(window, canva):
+    #on isole les touches:
+    if default_touches == "Fleches":
+        haut = "<Up>"
+        gauche = "<Left>" 
+        droite = "<Right>"
+        bas = "<Down>"
+    else:
+        haut = "<" + default_touches[0] + ">"
+        gauche = "<" + default_touches[1] + ">"
+        bas = "<" + default_touches[2] + ">"
+        droite = "<" + default_touches[3] + ">"
+
+    taille_case = 800/taille_grille
+    grille_jeu = initialisation(taille_grille)
+    maj_grille(canva, grille_jeu, taille_case)
+    window.bind(haut, lambda event:[mouvement_grille(grille_jeu, "haut"), maj_grille(canva, grille_jeu, taille_case)])
+    window.bind(bas, lambda event:[mouvement_grille(grille_jeu, "bas"), maj_grille(canva, grille_jeu, taille_case)])
+    window.bind(gauche, lambda event:[mouvement_grille(grille_jeu, "gauche"), maj_grille(canva, grille_jeu, taille_case)])
+    window.bind(droite, lambda event:[mouvement_grille(grille_jeu, "droite"), maj_grille(canva, grille_jeu, taille_case)])
 
 
 

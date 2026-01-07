@@ -6,6 +6,7 @@ from copy import deepcopy
 import time
 import os
 import tkinter as tk
+from tkinter import messagebox
 
 #on définit des varibles globales
 
@@ -126,6 +127,9 @@ def mouvement_ligne(ligne):
         ligne: la ligne à laquelle on veut faire effectuer le déplacement
     """
 
+    #on utliser la variable globale score
+    global score
+
     #nouvelle variables : une temporaire sans les 0(cases vides) et la nouvelle
     ligne_temp = [x for x in ligne if x != 0]
     nvl_ligne = []
@@ -139,6 +143,7 @@ def mouvement_ligne(ligne):
             i += 1
         elif valeur == ligne_temp[i+1]:         #si la valeur concerné et la suivante sont la même on ajoute la somme à nvl_lignes
             nvl_ligne.append(valeur*2)          #et on itère de 2 pour éviter deux fusions
+            score += valeur*2                   #on met à jour le score
             i += 2
         else:                                   #sinon si la valeur ne peut pas fusionner on l'ajoute à nvl_lignes
             nvl_ligne.append(valeur)
@@ -172,7 +177,7 @@ def inverse_grille(grille):
 #fonctions qui gère tout les mouvements
 def mouvement_grille(grille, direction):
 
-    """retourne une grille(liste de liste) où un mouvement de 2048 a été appliqué et modifie aussi directement la grille fournie
+    """fonction modifiant une grille fournie selon les déplacements d'un 2048
 
     args:
         grille: liste de liste représentant notre jeu de 2048
@@ -229,6 +234,24 @@ def mouvement_grille(grille, direction):
     
     return grille
 
+def verif_defaite(grille):
+    nvl_grille = deepcopy(grille)
+    mouvement_grille(nvl_grille, direction="haut")
+    mouvement_grille(nvl_grille, direction="bas")
+    mouvement_grille(nvl_grille, direction="gauche")
+    mouvement_grille(nvl_grille, direction="droite")
+
+    if grille == nvl_grille:
+        return True
+    else:
+        return False
+
+def verif_2048(grille):
+    for line in grille:
+        for element in line:
+            if element >= 2048:
+                return True
+    return False
 
 #procédure qui initialise la fenetre du jeu
 def lancer_fenetre(window):
@@ -317,6 +340,7 @@ def ecran_accueil(window):
 
     frame1.pack(expand=True)
     frame2.pack(expand=True)
+
 
 def parametres(window):
 
@@ -416,7 +440,7 @@ def parametres(window):
     frame1.pack(expand=tk.YES)
     frame2.pack(expand=tk.YES)
 
-def maj_grille(canva, grille, taille_case):
+def maj_grille(window, canva, grille, taille_case, label_score):
     for x in range(taille_grille):
         for i in range(taille_grille):
             case = grille[x][i]
@@ -435,14 +459,22 @@ def maj_grille(canva, grille, taille_case):
                     fill= "black",
                     font=("Arial", 30)
                 )
+    label_score.configure(text="\nScore : " + str(score))
+    if verif_defaite(grille):
+        messagebox.showinfo(title = "Perdu", message="Plus d'espace Disponible", parent=window)
+        fin_de_jeu(window, "defaite", grille)
 
+    if verif_2048(grille):
+        if messagebox.askyesno(title= "Gagné", message="Veux-tu finir la partie ?"):
+            fin_de_jeu(window, "Victoire", grille)
 
 
 def initialisation_interface(window):
     for element in window.winfo_children():
         element.destroy()
 
-    
+    grille_jeu = initialisation(taille_grille)
+
     #on crée le canvas(zone de jeu)
     zone_jeu = tk.Canvas(window, width = 800, height = 800, bg="ivory", highlightthickness = 0, borderwidth=0)
     zone_jeu.grid(row = 0, column= 0, pady= 40, padx=50)
@@ -457,7 +489,7 @@ def initialisation_interface(window):
         bg="pink",
         fg='black',
         font=("Arial", 25),
-        command= lambda: fin_de_jeu(window)
+        command= lambda: fin_de_jeu(window, "Abandon", grille_jeu)
     )
 
     bouton_commencer = tk.Button(
@@ -466,14 +498,13 @@ def initialisation_interface(window):
         bg="pink",
         fg='black',
         font=("Arial", 25),
-        command= lambda: jeu(window, zone_jeu)
+        command= lambda: jeu(window, zone_jeu, label_score, grille_jeu)
     )
 
     #on crée les textes:
 
     label_joueur = sous_titre("Joueur : " + nom, frameUI, bg)
-    label_score = sous_titre("\nScore :", frameUI, bg)
-    score = sous_titre("......", frameUI, bg)
+    label_score = sous_titre("\nScore :" + str(score), frameUI, bg)
 
     #calcul de la largeur d'une case    
     #contour
@@ -487,7 +518,6 @@ def initialisation_interface(window):
 
     label_joueur.grid(row= 0, column=0)
     label_score.grid(row = 1, column = 0)
-    score.grid(row= 1, column= 1)
     bouton_commencer.grid(row=2, column = 0, pady = 100)
     bouton_stop.grid(row = 3, column = 0, pady=40)
     frameUI.grid(row=0, column=1)
@@ -497,7 +527,7 @@ def initialisation_interface(window):
 
 
 
-def jeu(window, canva):
+def jeu(window, canva, label_score, grille):
     #on isole les touches:
     if default_touches == "Fleches":
         haut = "<Up>"
@@ -511,18 +541,37 @@ def jeu(window, canva):
         droite = "<" + default_touches[3] + ">"
 
     taille_case = 800/taille_grille
-    grille_jeu = initialisation(taille_grille)
-    maj_grille(canva, grille_jeu, taille_case)
-    window.bind(haut, lambda event:[mouvement_grille(grille_jeu, "haut"), maj_grille(canva, grille_jeu, taille_case)])
-    window.bind(bas, lambda event:[mouvement_grille(grille_jeu, "bas"), maj_grille(canva, grille_jeu, taille_case)])
-    window.bind(gauche, lambda event:[mouvement_grille(grille_jeu, "gauche"), maj_grille(canva, grille_jeu, taille_case)])
-    window.bind(droite, lambda event:[mouvement_grille(grille_jeu, "droite"), maj_grille(canva, grille_jeu, taille_case)])
+    maj_grille(window, canva, grille, taille_case, label_score)
+    window.bind(haut, lambda event:[mouvement_grille(grille, "haut"), maj_grille(window, canva, grille_jeu, taille_case, label_score)])
+    window.bind(bas, lambda event:[mouvement_grille(grille, "bas"), maj_grille(window, canva, grille_jeu, taille_case, label_score)])
+    window.bind(gauche, lambda event:[mouvement_grille(grille, "gauche"), maj_grille(window, canva, grille_jeu, taille_case, label_score)])
+    window.bind(droite, lambda event:[mouvement_grille(grille, "droite"), maj_grille(window, canva, grille_jeu, taille_case, label_score)])
 
 
 
-def fin_de_jeu(window):
+def fin_de_jeu(window, type_fin, grille):
     for element in window.winfo_children():
         element.destroy()
+
+    case_haute = 0
+    for line in grille:
+        for number in line:
+            if number > case_haute:
+                case_haute = number
+
+
+    frame_principale = tk.Frame(window, bg="Ivory")
+
+
+    label_typeFin = tk.Label(frame_principale, bg="Ivory", fg="black", text=str(type_fin) + " de " + nom, font=("Helvetica", 80), padx=80, pady= 80)
+    label_meilleureCase = tk.Label(frame_principale, bg="Ivory", fg="black", text="\nBloc le plus grand : " + str(case_haute), font=("Arial", 40), pady= 8)
+    label_scoreFinal = tk.Label(frame_principale, bg="Ivory", fg="black", text="\nScore Final : " + str(score), font=("Arial", 40), padx=80, pady= 80)
+
+    label_typeFin.pack()
+    label_meilleureCase.pack()
+    label_scoreFinal.pack()
+
+    frame_principale.pack(expand= tk.YES)
 
 def best_score(window):
     print("les meilleurs scores")

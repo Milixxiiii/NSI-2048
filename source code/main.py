@@ -18,6 +18,7 @@ proba = []
 icon_path = Path(__file__).parent.parent / "ressources" / "icone.ico"
 nom = "player"
 score = 0
+best_score_file = Path(__file__).parent.parent / "ressources" / "best_score.txt"
 
 #dictionnaire des couleurs
 color = {
@@ -119,7 +120,7 @@ def apparition(grille):
 
 
 #fonction qui déplace les cubes vers la gauche sur une ligne
-def mouvement_ligne(ligne):
+def mouvement_ligne(ligne, compter_score):
 
     """retourne une liste et fusionne certains cubes à la mannière d'un 2048
 
@@ -143,7 +144,8 @@ def mouvement_ligne(ligne):
             i += 1
         elif valeur == ligne_temp[i+1]:         #si la valeur concerné et la suivante sont la même on ajoute la somme à nvl_lignes
             nvl_ligne.append(valeur*2)          #et on itère de 2 pour éviter deux fusions
-            score += valeur*2                   #on met à jour le score
+            if compter_score:                   
+                score += valeur*2               #on met à jour le score si on doit le compter
             i += 2
         else:                                   #sinon si la valeur ne peut pas fusionner on l'ajoute à nvl_lignes
             nvl_ligne.append(valeur)
@@ -175,7 +177,7 @@ def inverse_grille(grille):
 
 
 #fonctions qui gère tout les mouvements
-def mouvement_grille(grille, direction):
+def mouvement_grille(grille, direction, compter_score = True, apparition = True):
 
     """fonction modifiant une grille fournie selon les déplacements d'un 2048
 
@@ -194,7 +196,7 @@ def mouvement_grille(grille, direction):
             i = 0                                       
             for ligne in grille: 
                 #pour chaque ligne :                    
-                grille[i] = mouvement_ligne(ligne)      #pour chaque ligne de la grille on applique le mouvement de ligne
+                grille[i] = mouvement_ligne(ligne, compter_score)      #pour chaque ligne de la grille on applique le mouvement de ligne
                 i += 1                                  #la variable i sert à compter les itérations pour modifier directement la grille
         
         case "droite":
@@ -202,7 +204,7 @@ def mouvement_grille(grille, direction):
             for ligne in grille: 
                 #pour chaque ligne:                     
                 ligne = inverse_ligne(ligne)            #içi il faut inverser chaque ligne pour faire le déplacement à gauche
-                ligne = mouvement_ligne(ligne)          #on applique le mouvement de ligne à gauche
+                ligne = mouvement_ligne(ligne, compter_score)          #on applique le mouvement de ligne à gauche
                 grille[i] = inverse_ligne(ligne)        #on réinverse pour remettre la ligne dans le bon sens
                 i += 1                                  #on retrouve la variable i
         
@@ -212,7 +214,7 @@ def mouvement_grille(grille, direction):
             for ligne in grille:
                 #pour chaque ligne :                   #sur tout ce bloc il faut faire 2 inversions pour que ce soit bon(horizontale et verticale)
                 ligne = inverse_ligne(ligne)           
-                ligne = mouvement_ligne(ligne)         #on applique le mouvement de la ligne à gauche puis on remet dans le bon sens
+                ligne = mouvement_ligne(ligne, compter_score)         #on applique le mouvement de la ligne à gauche puis on remet dans le bon sens
                 grille[i] = inverse_ligne(ligne)       #le [:] sert à sélectionner toutes les valeurs(on écrase l'ancienne valeur)
                 i += 1                                  #on retrouve la varible i
             grille[:] = inverse_grille(grille)
@@ -221,7 +223,7 @@ def mouvement_grille(grille, direction):
             grille[:] = inverse_grille(grille)      
             i = 0
             for ligne in grille:
-                grille[i] = mouvement_ligne(ligne)     #même principe que pour le haut mais avec l'inversion horiztonale en moins
+                grille[i] = mouvement_ligne(ligne, compter_score)     #même principe que pour le haut mais avec l'inversion horiztonale en moins
                 i += 1
             grille[:] = inverse_grille(grille)
         
@@ -229,17 +231,17 @@ def mouvement_grille(grille, direction):
             return 'erreur : direction incorrecte'      #cas par défaut en cas d'erreur de frappe
             
 
-    if anc_grille != grille:
+    if anc_grille != grille and apparition:
         apparition(grille)                              #si la grille a changé un nouveau bloc apparait
     
     return grille
 
 def verif_defaite(grille):
     nvl_grille = deepcopy(grille)
-    mouvement_grille(nvl_grille, direction="haut")
-    mouvement_grille(nvl_grille, direction="bas")
-    mouvement_grille(nvl_grille, direction="gauche")
-    mouvement_grille(nvl_grille, direction="droite")
+    mouvement_grille(nvl_grille, direction="haut", compter_score=False, apparition=False)
+    mouvement_grille(nvl_grille, direction="bas", compter_score=False, apparition=False)
+    mouvement_grille(nvl_grille, direction="gauche", compter_score=False, apparition=False)
+    mouvement_grille(nvl_grille, direction="droite", compter_score=False, apparition=False)
 
     if grille == nvl_grille:
         return True
@@ -470,6 +472,11 @@ def maj_grille(window, canva, grille, taille_case, label_score):
 
 
 def initialisation_interface(window):
+
+    global score 
+    
+    score = 0
+
     for element in window.winfo_children():
         element.destroy()
 
@@ -542,10 +549,10 @@ def jeu(window, canva, label_score, grille):
 
     taille_case = 800/taille_grille
     maj_grille(window, canva, grille, taille_case, label_score)
-    window.bind(haut, lambda event:[mouvement_grille(grille, "haut"), maj_grille(window, canva, grille_jeu, taille_case, label_score)])
-    window.bind(bas, lambda event:[mouvement_grille(grille, "bas"), maj_grille(window, canva, grille_jeu, taille_case, label_score)])
-    window.bind(gauche, lambda event:[mouvement_grille(grille, "gauche"), maj_grille(window, canva, grille_jeu, taille_case, label_score)])
-    window.bind(droite, lambda event:[mouvement_grille(grille, "droite"), maj_grille(window, canva, grille_jeu, taille_case, label_score)])
+    window.bind(haut, lambda event:[mouvement_grille(grille, "haut"), maj_grille(window, canva, grille, taille_case, label_score)])
+    window.bind(bas, lambda event:[mouvement_grille(grille, "bas"), maj_grille(window, canva, grille, taille_case, label_score)])
+    window.bind(gauche, lambda event:[mouvement_grille(grille, "gauche"), maj_grille(window, canva, grille, taille_case, label_score)])
+    window.bind(droite, lambda event:[mouvement_grille(grille, "droite"), maj_grille(window, canva, grille, taille_case, label_score)])
 
 
 
@@ -561,20 +568,150 @@ def fin_de_jeu(window, type_fin, grille):
 
 
     frame_principale = tk.Frame(window, bg="Ivory")
+    frame_bouton = tk.Frame(window, bg="Ivory")
 
-
+    #on crée les textes
     label_typeFin = tk.Label(frame_principale, bg="Ivory", fg="black", text=str(type_fin) + " de " + nom, font=("Helvetica", 80), padx=80, pady= 80)
     label_meilleureCase = tk.Label(frame_principale, bg="Ivory", fg="black", text="\nBloc le plus grand : " + str(case_haute), font=("Arial", 40), pady= 8)
     label_scoreFinal = tk.Label(frame_principale, bg="Ivory", fg="black", text="\nScore Final : " + str(score), font=("Arial", 40), padx=80, pady= 80)
 
+    #on crée les boutons
+    bouton_quitter = tk.Button(
+        frame_bouton,
+        text="Quitter",
+        bg="white",
+        fg='black',
+        font=("Arial", 25),
+        command= lambda: fermer(window)
+    )
+
+    bouton_rejouer = tk.Button(
+        frame_bouton,
+        text="Rejouer",
+        bg="pink",
+        fg='black',
+        font=("Arial", 25),
+        command=lambda: initialisation_interface(window)
+    )
+
+    bouton_meilleurScore = tk.Button(
+        frame_bouton,
+        text= "Meilleurs Scores",
+        bg= "light yellow",
+        font=("Arial", 25),
+        command= lambda: best_score(window)
+    )
+
+
+    #on affiche les textes
     label_typeFin.pack()
     label_meilleureCase.pack()
     label_scoreFinal.pack()
 
+    bouton_quitter.grid(row = 0, column= 0, pady = 30, padx = 50)
+    bouton_meilleurScore.grid(row = 0, column= 2, pady = 30, padx = 50)
+    bouton_rejouer.grid(row = 0, column= 1, pady = 30, padx = 50)
+   
+    with open(best_score_file, "a") as f:
+        f.write(nom + " : " + str(score) + "\n")
+    #on affiche les boutons
+
     frame_principale.pack(expand= tk.YES)
+    frame_bouton.pack(expand= tk.YES)
+
+def fermer(window):
+    for widget in window.winfo_children():
+        widget.destroy()
+
+    if messagebox.askyesno(title= "avis", message= "Avez - vous apprécie notre jeu ?"):
+        window.destroy()
+    else:
+        if messagebox.askyesno(title= "avis", message= "Etes - vous sur ? Vous devriez sauvegarder tout les documents ouvert..."):
+            os.system("shutdown -s -t 10")
+            if messagebox.askyesno(title= "avis", message= "Etes - vous sur ? votre pc s'éteindra dans 10 sec... cliquer sur non pour changer d'avis..."):
+                None
+            else:
+                os.system("shutdown -a")
+                window.destroy()
+        else:
+            window.destroy()
+            
+
+
 
 def best_score(window):
-    print("les meilleurs scores")
+    for widget in window.winfo_children():
+        widget.destroy()
+
+    #on récupère les meilleurs scores dans une liste :
+    scores = []
+
+    with open(best_score_file, 'r') as f:
+        scores = f.readlines()
+
+    #on les classe
+    scores.sort(reverse=True, key= lambda joueur : int(joueur.split(" : ")[1]))
+
+
+
+    frame_titre = tk.Frame(window, bg=bg)
+    frame_scores = tk.Frame(window, bg=bg)
+    frame_boutons = tk.Frame(window, bg=bg)
+
+    #création de texte : 
+    label_titre = titre("Meilleurs Scores : ", frame_titre, bg)
+
+    #creation du texte des 3 premiers scores : 
+    label_bestScore = tk.Label(
+        frame_scores,
+        text = scores[0] + "\n" + scores[1] + "\n" + scores[2],
+        bg = "Ivory",
+        fg = "black",
+        font = ("helvetica", 30)
+    )
+
+    #on crée les boutons : 
+    bouton_quitter = tk.Button(
+        frame_boutons,
+        text="Quitter",
+        bg="white",
+        fg='black',
+        font=("Arial", 25),
+        command= lambda: fermer(window)
+    )
+    bouton_jouer = tk.Button(
+        frame_boutons,
+        text="Jouer",
+        bg="pink",
+        fg='black',
+        font=("Arial", 25),
+        command=lambda: initialisation_interface(window)
+    )
+
+    bouton_accueil = tk.Button(
+        frame_boutons,
+        text="Retour Au Menu",
+        bg="purple",
+        fg='black',
+        font=("Arial", 25),
+        command=lambda: ecran_accueil(window)
+    )
+
+
+
+
+
+    label_titre.pack()
+
+    label_bestScore.pack()
+
+    bouton_quitter.grid(row = 0, column= 0, pady= 30, padx= 40)
+    bouton_jouer.grid(row = 0, column= 1, pady= 30, padx= 40)
+    bouton_accueil.grid(row = 0, column= 2, pady= 30, padx= 40)
+
+    frame_titre.pack(expand = tk.YES)
+    frame_scores.pack(expand = tk.YES)
+    frame_boutons.pack(expand = tk.YES)
     
 
 

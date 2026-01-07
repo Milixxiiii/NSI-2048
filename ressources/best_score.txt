@@ -1,0 +1,7 @@
+player : 352
+milo : 455
+nail : 654
+merwan : 1800
+goat : 2468
+goat : 600
+player : 0

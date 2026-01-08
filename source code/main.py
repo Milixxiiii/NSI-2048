@@ -10,19 +10,21 @@ from tkinter import messagebox
 
 #on définit des varibles globales
 
-taille_grille = 4
-bg = "#DBA2D9"
+taille_grille = 4 #taille par défaut de la grille
+bg = "#DBA2D9"  #couleur de fond de la fenetre
 default_probas = "90% - 10%"
 default_touches = "zqsd"
 proba = []
-icon_path = Path(__file__).parent.parent / "ressources" / "icone.ico"
 nom = "player"
 score = 0
+
+#on définit les chemins des ressources
+icon_path = Path(__file__).parent.parent / "ressources" / "icone.ico"
 best_score_file = Path(__file__).parent.parent / "ressources" / "best_score.txt"
 
 #dictionnaire des couleurs
 color = {
-    0 : "#CDC1B4",
+    0: "#CDC1B4",
     2: "#EEE4DA",
     4: "#EDE0C8",
     8: "#F2B179",
@@ -33,10 +35,22 @@ color = {
     256: "#EDCC61",
     512: "#EDC850",
     1024: "#EDC53F",
-    2048: "#EDC22E"
+    2048: "#EDC22E",
+
+    4096: "#3C3A32",
+    8192: "#2E2C25",
+    16384: "#1F1E1A",
+    32768: "#1A1612",
+    65536: "#140F0A",
+
+    131072: "#0F0B07",
+    262144: "#0B0805",
+    524288: "#070503",
+    1048576: "#030201",
 }
 
-#fonction affichage de la grille dans la console
+
+#fonction affichage de la grille dans la console(pour le debug)
 def afficheGrille(grille):
     os.system("cls")
     for x in grille:
@@ -56,10 +70,10 @@ def select_zero(liste):
 
     case_zero = []
 
-    for x in range(len(liste)):
-        for element in range(len(liste[x])):
+    for x in range(len(liste)): #parcours des lignes
+        for element in range(len(liste[x])): #parcours des éléments de chaque ligne
             if liste[x][element] == 0:
-                case_zero.append((x, element))
+                case_zero.append((x, element))  #si 0 on l'ajoute à la liste des cases vides
 
     return case_zero
 
@@ -73,8 +87,11 @@ def initialisation(taille):
 
     
     """
+
+    #varibles glovales
     global proba
 
+    #on récupère les probas choisies par l'utilisateur
     p2, p4 = default_probas.replace("%", "").split(" - ")
 
     #on crée la grille de jeu
@@ -232,39 +249,75 @@ def mouvement_grille(grille, direction, compter_score = True, apparition = True)
             
 
     if anc_grille != grille and apparition:
-        apparition(grille)                              #si la grille a changé un nouveau bloc apparait
-    
+        apparition(grille)                              #si la grille a changé + appartion : True un nouveau bloc apparait
     return grille
 
 def verif_defaite(grille):
-    nvl_grille = deepcopy(grille)
+
+    """fonctionretournant True si le joueur ne peut plus jouer
+
+    args:
+        grille: liste de liste représentant notre jeu de 2048
+    returns:
+        bool: True si le joueur ne peut plus jouer, False sinon
+    """
+
+    nvl_grille = deepcopy(grille)   #on crée une copie de la grille
+
+    #on effectue tout les mouvements sans compter le score ni faire apparaitre de nouveaux blocs
     mouvement_grille(nvl_grille, direction="haut", compter_score=False, apparition=False)
     mouvement_grille(nvl_grille, direction="bas", compter_score=False, apparition=False)
     mouvement_grille(nvl_grille, direction="gauche", compter_score=False, apparition=False)
     mouvement_grille(nvl_grille, direction="droite", compter_score=False, apparition=False)
 
+    #on compare la nouvelle grille avec l'ancienne
     if grille == nvl_grille:
-        return True
+        return True     #si elles sont identiques le joueur ne peut plus jouer
     else:
-        return False
+        return False    # sinon il peut encore jouer
 
 def verif_2048(grille):
-    for line in grille:
-        for element in line:
+
+    """
+    fonction retournant True si un cube 2048 ou plus est présent dans la grille
+    
+    args:
+        grille: liste de liste représentant notre jeu de 2048
+    returns:
+        bool: True si un cube 2048 ou plus est présent, False sinon
+    """
+    for line in grille:     #parcours des lignes
+        for element in line:    #parcours des éléments de chaque ligne
             if element >= 2048:
-                return True
-    return False
+                return True     #si on trouve un cube 2048 ou plus on retourne True
+    return False            #sinon on retourne False
 
 #procédure qui initialise la fenetre du jeu
 def lancer_fenetre(window):
-    window.title("2048 - Python")
-    window.iconbitmap(icon_path)
-    window.geometry("1920x1080")
-    window.minsize(960, 600)
-    window.config(bg=bg)
+    """
+    procédure qui initialise la fenetre principale du jeu
+    
+    args:
+        window: objet tkinter représentant la fenetre principale
+    """
+    window.title("2048")   #titre de la fenetre
+    window.iconbitmap(icon_path)    #icone de la fenetre
+    window.geometry("1920x1080")    #taille de la fenetre
+    window.minsize(960, 600)    #taille minimale de la fenetre
+    window.config(bg=bg)        #couleur de fond de la fenetre
 
 
 def titre(texte, lieu, bg_color):
+    """
+    retourne un label de titre
+
+    args:
+        texte: texte du titre
+        lieu: frame ou placer le titre
+        bg_color: couleur de fond du titre
+    returns:
+        label: label tkinter représentant le titre
+    """
     return tk.Label(
         lieu,
         text=texte,
@@ -274,6 +327,16 @@ def titre(texte, lieu, bg_color):
     )
 
 def sous_titre(texte, lieu, bg_color):
+    """
+    retourne un label de sous-titre
+
+    args:
+        texte: texte du sous-titre
+        lieu: frame ou placer le sous-titre
+        bg_color: couleur de fond du sous-titre
+    returns:
+        label: label tkinter représentant le sous-titre
+    """
     return tk.Label(
         lieu,
         text = texte,
@@ -283,33 +346,58 @@ def sous_titre(texte, lieu, bg_color):
     )
 
 def maj_param(pseudo, taille, touches, probas):
+    """
+    procédure qui met à jour les paramètres du jeu
+
+    args:
+        pseudo: entrée tkinter du pseudo
+        taille: entrée tkinter de la taille de la grille
+        touches: variable tkinter des touches choisies
+        probas: variable tkinter des probas choisies
+    """
+    #variables globales
     global nom, taille_grille, default_probas, default_touches
 
+    #on met à jour les variables globales
     nom = pseudo.get()
     taille_grille = int(taille.get())
     default_touches = touches.get()
     default_probas = probas.get()
-
-    print(taille_grille)
     
     
 
 def ecran_accueil(window):
 
+    """
+    procédure qui affiche l'écran d'accueil du jeu
+
+    args:
+        window: objet tkinter représentant la fenetre principale
+    """
+
+    #on nettoie la fenetre
     for widget in window.winfo_children():
         widget.destroy()
     
+    #on change le titre de la fenetre
+    window.title("2048 - Accueil")
+    
+    #on choisit un fond pour les frames
     bg_frame1 = "#ECF5B3"
 
+    #on crée les frames
     frame1 = tk.Frame(window, bg=bg_frame1)
     frame2 = tk.Frame(window, bg=bg)
 
+    #on crée les textes
     label_title = titre("Un Jeu de 2048 en PYTHON \n - \n Cours de NSI", frame1, bg_frame1)
-    label_title.pack()
-
     label_credits = sous_titre("\nPar Nail, Merwan et Milo", frame1, bg_frame1)
+
+    #on place les textes
+    label_title.pack()
     label_credits.pack()
 
+    #on crée les boutons
     lancer_bouton = tk.Button(
         frame2,
         text="Lancer",
@@ -336,15 +424,24 @@ def ecran_accueil(window):
         command= lambda: best_score(window)
     )
 
+    #on place les boutons avec grid
     lancer_bouton.grid(row=0, column=1, padx=20)
     param_bouton.grid(row=0, column=0, padx=20)
     bestScore_bouton.grid(row=0, column = 2, padx=20,)
 
+    #on pack les frames
     frame1.pack(expand=True)
     frame2.pack(expand=True)
 
 
 def parametres(window):
+
+    """
+    procédure qui affiche l'écran des paramètres
+
+    args:
+        window: objet tkinter représentant la fenetre principale
+    """
 
     #nettoyage de l'ancienne fenetre:
     for element in window.winfo_children():
@@ -443,17 +540,35 @@ def parametres(window):
     frame2.pack(expand=tk.YES)
 
 def maj_grille(window, canva, grille, taille_case, label_score):
-    for x in range(taille_grille):
-        for i in range(taille_grille):
+
+    """
+    procédure qui met à jour l'affichage de la grille
+
+    args:
+        window: objet tkinter représentant la fenetre principale
+        canva: canvas tkinter représentant la zone de jeu
+        grille: liste de liste représentant notre jeu de 2048
+        taille_case: taille d'une case en pixel
+        label_score: label tkinter représentant le score
+    """
+    for x in range(taille_grille):      #parcours des lignes
+        for i in range(taille_grille):  #parcours des éléments de chaque ligne
+            #on récupère la case
             case = grille[x][i]
+
+            #on calcule les coordonnées de la case
             x1 = i*taille_case
             y1 = x*taille_case
             x2 = i*taille_case + taille_case
             y2 = x*taille_case + taille_case
+
+            #on dessine la case
             canva.create_rectangle(
                 x1, y1, x2, y2,
                 fill = color[case]
             )
+
+            #si c'est un bloc > 0 on affiche sa valeur
             if case > 0:
                 canva.create_text(
                     x1 + taille_case/2, y1 + taille_case/2,
@@ -461,25 +576,44 @@ def maj_grille(window, canva, grille, taille_case, label_score):
                     fill= "black",
                     font=("Arial", 30)
                 )
+    #on met à jour le score
     label_score.configure(text="\nScore : " + str(score))
+
+    #on vérifie si le jeu est fini
     if verif_defaite(grille):
+        #si oui on affiche un message de défaite
         messagebox.showinfo(title = "Perdu", message="Plus d'espace Disponible", parent=window)
         fin_de_jeu(window, "defaite", grille)
 
+    #on vérifie si le joueur a gagné
     if verif_2048(grille):
+        #si oui on lui demande s'il veut continuer ou non
         if messagebox.askyesno(title= "Gagné", message="Veux-tu finir la partie ?"):
             fin_de_jeu(window, "Victoire", grille)
 
 
 def initialisation_interface(window):
+    """
+    procédure qui initialise l'interface de jeu
 
+    args:
+        window: objet tkinter représentant la fenetre principale
+    """
+
+    #varible globale
     global score 
     
+    #on réinitialise le score
     score = 0
 
+    #on nettoie la fenetre
     for element in window.winfo_children():
         element.destroy()
+    
+    #on change le titre de la fenêtre
+    window.title("2048 - Jeu")
 
+    #on crée la grille de jeu
     grille_jeu = initialisation(taille_grille)
 
     #on crée le canvas(zone de jeu)
@@ -522,7 +656,7 @@ def initialisation_interface(window):
     )
 
 
-
+    #on place les éléments de l'UI avec grid
     label_joueur.grid(row= 0, column=0)
     label_score.grid(row = 1, column = 0)
     bouton_commencer.grid(row=2, column = 0, pady = 100)
@@ -535,20 +669,38 @@ def initialisation_interface(window):
 
 
 def jeu(window, canva, label_score, grille):
+
+    """
+    procédure qui gère le déroulement du jeu
+
+    args:
+        window: objet tkinter représentant la fenetre principale
+    """
+
+    #on change le titre de la fenetre
+    window.title("2048 - Jeu En Cours")
+
     #on isole les touches:
     if default_touches == "Fleches":
+        #si c'est des fleches on les assigne directement
         haut = "<Up>"
         gauche = "<Left>" 
         droite = "<Right>"
         bas = "<Down>"
     else:
+        #sinon on recupe les touches choisies
         haut = "<" + default_touches[0] + ">"
         gauche = "<" + default_touches[1] + ">"
         bas = "<" + default_touches[2] + ">"
         droite = "<" + default_touches[3] + ">"
 
+    #on calcule la taille d'une case
     taille_case = 800/taille_grille
+
+    #on fait l'affichage initial de la grille
     maj_grille(window, canva, grille, taille_case, label_score)
+
+    #on bind les touches aux fonctions de déplacement et on met à jour la grille après chaque déplacement
     window.bind(haut, lambda event:[mouvement_grille(grille, "haut"), maj_grille(window, canva, grille, taille_case, label_score)])
     window.bind(bas, lambda event:[mouvement_grille(grille, "bas"), maj_grille(window, canva, grille, taille_case, label_score)])
     window.bind(gauche, lambda event:[mouvement_grille(grille, "gauche"), maj_grille(window, canva, grille, taille_case, label_score)])
@@ -557,16 +709,32 @@ def jeu(window, canva, label_score, grille):
 
 
 def fin_de_jeu(window, type_fin, grille):
+    """
+    procédure qui affiche l'écran de fin de jeu
+
+    args:
+        window: objet tkinter représentant la fenetre principale
+        type_fin: chaine de caractère représentant le type de fin("Victoire", "Défaite", "Abandon")
+        grille: liste de liste représentant notre jeu de 2048
+    """
+
+    #on nettoie la fenetre
     for element in window.winfo_children():
         element.destroy()
 
+    #on change le titre de la fenetre
+    window.title("2048 - Fin Du Jeu")
+
+    #on calcule la plus grande case :
     case_haute = 0
-    for line in grille:
-        for number in line:
+    for line in grille: #parcours des lignes
+        for number in line: #parcours des éléments de chaque ligne
             if number > case_haute:
+                #on met a jour la plus grande case
                 case_haute = number
 
 
+    #on crée les frames
     frame_principale = tk.Frame(window, bg="Ivory")
     frame_bouton = tk.Frame(window, bg="Ivory")
 
@@ -608,29 +776,50 @@ def fin_de_jeu(window, type_fin, grille):
     label_meilleureCase.pack()
     label_scoreFinal.pack()
 
+    #on place les boutons avec grid
     bouton_quitter.grid(row = 0, column= 0, pady = 30, padx = 50)
     bouton_meilleurScore.grid(row = 0, column= 2, pady = 30, padx = 50)
     bouton_rejouer.grid(row = 0, column= 1, pady = 30, padx = 50)
-   
+    
+    #on enregistre le score dans le fichier des meilleurs scores
     with open(best_score_file, "a") as f:
         f.write(nom + " : " + str(score) + "\n")
     #on affiche les boutons
 
+    #on pack les frames
     frame_principale.pack(expand= tk.YES)
     frame_bouton.pack(expand= tk.YES)
 
 def fermer(window):
+    """
+    procédure qui gère la fermeture de la fenetre
+    c'est un easter egg un peu dangereux... a prendre avec humour ;)
+    aucune mauvaise intention derrière cela ni de responsabilité en cas de problème
+
+    args:
+        window: objet tkinter représentant la fenetre principale
+    """
+
+    #on nettoie la fenetre
     for widget in window.winfo_children():
         widget.destroy()
 
+    #on demande l'avis de l'utilisateur
     if messagebox.askyesno(title= "avis", message= "Avez - vous apprécie notre jeu ?"):
+        #on affiche un message de remerciement
+        messagebox.showinfo(title= "Merci !", message= "Merci pour votre soutien ! Au revoir !")
+        #on ferme la fenetre
         window.destroy()
     else:
+        #on le menace d'eteindre son pc
         if messagebox.askyesno(title= "avis", message= "Etes - vous sur ? Vous devriez sauvegarder tout les documents ouvert..."):
+            #si il accepte on lance le compte à rebourd
             os.system("shutdown -s -t 10")
             if messagebox.askyesno(title= "avis", message= "Etes - vous sur ? votre pc s'éteindra dans 10 sec... cliquer sur non pour changer d'avis..."):
+                #si il confirme on le fait
                 None
             else:
+                #sinon si il revient sur son avis on annule l'extinction
                 os.system("shutdown -a")
                 window.destroy()
         else:
@@ -640,12 +829,23 @@ def fermer(window):
 
 
 def best_score(window):
+    """
+    procédure qui affiche l'écran des meilleurs scores
+
+    args:
+        window: objet tkinter représentant la fenetre principale
+    """ 
+    #on nettoie la fenetre
     for widget in window.winfo_children():
         widget.destroy()
+
+    #on change le titre de la fenetre
+    window.title("2048 - Meilleurs Scores")
 
     #on récupère les meilleurs scores dans une liste :
     scores = []
 
+    #on lit le fichier des meilleurs scores
     with open(best_score_file, 'r') as f:
         scores = f.readlines()
 
@@ -653,7 +853,7 @@ def best_score(window):
     scores.sort(reverse=True, key= lambda joueur : int(joueur.split(" : ")[1]))
 
 
-
+    #creation des frames
     frame_titre = tk.Frame(window, bg=bg)
     frame_scores = tk.Frame(window, bg=bg)
     frame_boutons = tk.Frame(window, bg=bg)
@@ -700,7 +900,7 @@ def best_score(window):
 
 
 
-
+    #on place les éléments
     label_titre.pack()
 
     label_bestScore.pack()
@@ -714,11 +914,11 @@ def best_score(window):
     frame_boutons.pack(expand = tk.YES)
     
 
-
-root = tk.Tk()
-lancer_fenetre(root)
-ecran_accueil(root)
-root.mainloop()
+#on lance le programme
+root = tk.Tk()      #on crée l'objet tkinter
+lancer_fenetre(root)    #on initialise la fenetre
+ecran_accueil(root)     #on affiche l'écran d'accueil
+root.mainloop()         #on lance la boucle principale de tkinter
 
 
 

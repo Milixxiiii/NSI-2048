@@ -194,7 +194,7 @@ def inverse_grille(grille):
 
 
 #fonctions qui gère tout les mouvements
-def mouvement_grille(grille, direction, compter_score = True, apparition = True):
+def mouvement_grille(grille, direction, compter_score = True, apparition_bloc = True):
 
     """fonction modifiant une grille fournie selon les déplacements d'un 2048
 
@@ -248,7 +248,7 @@ def mouvement_grille(grille, direction, compter_score = True, apparition = True)
             return 'erreur : direction incorrecte'      #cas par défaut en cas d'erreur de frappe
             
 
-    if anc_grille != grille and apparition:
+    if anc_grille != grille and apparition_bloc:
         apparition(grille)                              #si la grille a changé + appartion : True un nouveau bloc apparait
     return grille
 
@@ -265,10 +265,10 @@ def verif_defaite(grille):
     nvl_grille = deepcopy(grille)   #on crée une copie de la grille
 
     #on effectue tout les mouvements sans compter le score ni faire apparaitre de nouveaux blocs
-    mouvement_grille(nvl_grille, direction="haut", compter_score=False, apparition=False)
-    mouvement_grille(nvl_grille, direction="bas", compter_score=False, apparition=False)
-    mouvement_grille(nvl_grille, direction="gauche", compter_score=False, apparition=False)
-    mouvement_grille(nvl_grille, direction="droite", compter_score=False, apparition=False)
+    mouvement_grille(nvl_grille, direction="haut", compter_score=False)
+    mouvement_grille(nvl_grille, direction="bas", compter_score=False)
+    mouvement_grille(nvl_grille, direction="gauche", compter_score=False)
+    mouvement_grille(nvl_grille, direction="droite", compter_score=False)
 
     #on compare la nouvelle grille avec l'ancienne
     if grille == nvl_grille:
@@ -919,9 +919,3 @@ root = tk.Tk()      #on crée l'objet tkinter
 lancer_fenetre(root)    #on initialise la fenetre
 ecran_accueil(root)     #on affiche l'écran d'accueil
 root.mainloop()         #on lance la boucle principale de tkinter
-
-
-
-
-
-

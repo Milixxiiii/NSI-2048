@@ -5,3 +5,6 @@ merwan : 1800
 goat : 2468
 goat : 600
 player : 0
+player : 4
+player : 4
+player : 336

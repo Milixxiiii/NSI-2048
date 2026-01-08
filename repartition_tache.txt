@@ -1,0 +1,12 @@
+Jeu 2048 en Python
+Naïl, Milo, Merwan
+
+Répartition des tâches :
+
+- Naïl : Développement des algorithmes principaux du jeu et gestion du score.
+- Milo : Création de l’interface graphique avec Tkinter et gestion des interactions utilisateur.
+- Merwan : Commentaire et documentation du code pour faciliter la compréhension, et réalisation avec l'aide de Naïl des mouvements des blocs, la fusion, et l'apparition aléatoire.
+
+En + :
+-Ajout d’un Easter Egg 
+-Possibilité de choisir un thème de couleurs pour la grille
